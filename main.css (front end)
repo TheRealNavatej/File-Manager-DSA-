@@ -1,0 +1,499 @@
+/*
+    style.css
+    Stylesheet for the Digital Archive File Organizer.
+    This file defines the visual appearance, layout, colors, fonts,
+    and animations for the application.
+*/
+
+/* --- Global Styles & Variables --- */
+:root { /* The :root pseudo-class targets the root element of the document (<html>). Used here to define global CSS variables. */
+    /* Color Palette */
+    --primary-color: #2c3e50;   /* Dark Blue-Grey: Used for main elements like headers, sidebar. */
+    --secondary-color: #3498db; /* Bright Blue: Used for accents, links, and highlights. */
+    --accent-color: #e67e22;    /* Orange: Used for important actions like delete or warnings. */
+    --light-bg: #ecf0f1;        /* Light Grey: Background for content areas or cards. */
+    --text-color: #333;         /* Dark Grey: Standard text color for readability. */
+    --text-color-light: #f8f9fa;/* Light Grey/White: Text color for dark backgrounds. */
+    --border-color: #bdc3c7;    /* Medium Grey: For borders and separators. */
+    --hover-bg-color: #34495e;  /* Slightly darker blue-grey: For hover states on buttons/interactive elements. */
+    --active-item-bg: #4a6fa5;  /* A distinct blue: Background for active/selected items. */
+    
+    /* Typography */
+    --font-main: 'Roboto', sans-serif;   /* Main font for body text. 'sans-serif' is a fallback. */
+    --font-brand: 'Orbitron', sans-serif; /* Special font for branding/logo. */
+    
+    /* Effects */
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* A subtle shadow for cards and elevated elements. */
+    --transition-speed: 0.3s; /* Standard speed for transitions (hover effects, animations). */
+}
+
+* { /* Universal selector: Applies to all elements on the page. */
+    margin: 0;  /* Removes default browser margins. */
+    padding: 0; /* Removes default browser paddings. */
+    box-sizing: border-box; /* Changes the box model: padding and border are included in the element's total width and height. */
+}
+
+body {
+    font-family: var(--font-main); /* Sets the default font for the entire page. */
+    line-height: 1.6;             /* Sets the space between lines of text for better readability. */
+    background-color: var(--light-bg); /* Sets the background color of the page. */
+    color: var(--text-color);     /* Sets the default text color. */
+    display: flex;                /* Enables flexbox layout for the body. */
+    flex-direction: column;       /* Arranges child elements (header, main, footer) vertically. */
+    min-height: 100vh;            /* Ensures the body takes at least the full viewport height (vh). Important for footer placement. */
+}
+
+/* --- Header --- */
+header {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%); /* Creates a horizontal gradient background. */
+    color: var(--text-color-light); /* Text color for header content. */
+    padding: 1rem 2rem;            /* Adds padding (1rem top/bottom, 2rem left/right). */
+    text-align: center;            /* Centers the text content within the header. */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Adds a subtle shadow below the header. */
+    position: sticky;              /* Makes the header stick to the top of the viewport when scrolling. */
+    top: 0;                        /* Specifies the header should stick at the very top. */
+    z-index: 1000;                 /* Ensures the header stays above other content during scrolling. */
+}
+
+header .logo { /* Styles the logo container within the header. */
+    font-family: var(--font-brand); /* Uses the brand font for the logo. */
+    font-size: 1.8rem;             /* Sets the font size for the logo text. */
+    font-weight: 700;              /* Makes the logo text bold. */
+    margin-bottom: 0.25rem;        /* Adds a small space below the logo. */
+    display: flex;                 /* Enables flexbox for aligning icon and text. */
+    align-items: center;           /* Vertically aligns items in the center. */
+    justify-content: center;       /* Horizontally aligns items in the center. */
+    gap: 10px;                     /* Adds space between the icon and the text. */
+}
+
+header .logo i { /* Styles the icon within the logo. */
+    animation: pulseIcon 2s infinite; /* Applies a pulsing animation to the icon. */
+}
+
+header h1 { /* Styles the main heading (H1) within the header. */
+    font-size: 1.5rem;     /* Sets the font size for the main title. */
+    font-weight: 400;      /* Sets a normal font weight. */
+    opacity: 0.9;          /* Makes the title slightly transparent. */
+}
+
+@keyframes pulseIcon { /* Defines the 'pulseIcon' animation. */
+    0% { transform: scale(1); }    /* Start: normal size. */
+    50% { transform: scale(1.1); } /* Middle: slightly larger. */
+    100% { transform: scale(1); }  /* End: back to normal size. */
+}
+
+/* --- Main Container --- */
+.container { /* Styles the main content wrapper that holds sidebar and content-area. */
+    display: flex;     /* Enables flexbox layout for arranging sidebar and content area side-by-side. */
+    flex-grow: 1;      /* Allows the container to grow and fill available vertical space (important if body uses flex). */
+    margin: 1rem;      /* Adds some margin around the container. */
+    gap: 1rem;         /* Creates a 1rem space between the sidebar and the content area. */
+}
+
+/* --- Sidebar (Folder Tree) --- */
+.sidebar {
+    width: 300px;                /* Sets a fixed width for the sidebar. */
+    background-color: #fff;      /* White background for the sidebar. */
+    padding: 1.5rem;             /* Padding inside the sidebar. */
+    border-radius: 8px;          /* Rounds the corners of the sidebar. */
+    box-shadow: var(--shadow);   /* Applies the predefined shadow. */
+    overflow-y: auto;            /* Adds a scrollbar if content exceeds sidebar height. */
+    transition: width var(--transition-speed) ease; /* Smooth transition for width changes (if implemented). */
+}
+
+.sidebar h2 { /* Styles the H2 heading within the sidebar. */
+    color: var(--primary-color); /* Uses primary color for the heading text. */
+    margin-bottom: 1rem;         /* Space below the heading. */
+    border-bottom: 2px solid var(--secondary-color); /* Adds a colored underline. */
+    padding-bottom: 0.5rem;      /* Space between text and underline. */
+    font-size: 1.4rem;           /* Font size for the sidebar heading. */
+}
+
+.sidebar h2 i { /* Styles icons within the sidebar H2. */
+    margin-right: 8px;          /* Space to the right of the icon. */
+    color: var(--secondary-color); /* Uses secondary color for the icon. */
+}
+
+.action-btn { /* General styling for action buttons (e.g., New Folder, Add File). */
+    background-color: var(--secondary-color); /* Button background color. */
+    color: var(--text-color-light);    /* Text color for the button. */
+    border: none;                      /* Removes default button border. */
+    padding: 0.75rem 1.25rem;          /* Padding inside the button. */
+    border-radius: 5px;                /* Rounds button corners. */
+    cursor: pointer;                   /* Changes cursor to a pointer on hover. */
+    font-size: 0.95rem;                /* Font size for button text. */
+    font-weight: 500;                  /* Medium font weight. */
+    transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease; /* Smooth transitions for hover effects. */
+    display: flex;                     /* Enables flexbox for aligning icon and text within the button. */
+    align-items: center;               /* Vertically aligns content. */
+    gap: 8px;                          /* Space between icon and text in button. */
+    margin-bottom: 1rem;               /* Space below the button (if it's a block). */
+    width: 100%;                       /* Makes sidebar buttons take full available width. */
+    justify-content: center;           /* Centers content within the button if it's full width. */
+}
+
+.action-btn:hover { /* Styles for action buttons on hover. */
+    background-color: var(--hover-bg-color); /* Changes background color on hover. */
+    transform: translateY(-2px);            /* Slightly lifts the button on hover for a subtle 3D effect. */
+}
+
+.action-btn i { /* Styles icons within action buttons. */
+    font-size: 1em; /* Icon size relative to the button's font size. */
+}
+
+
+.folder-tree { /* Styles the main unordered list for the folder tree. */
+    list-style-type: none; /* Removes default list bullets. */
+    padding-left: 0;       /* Removes default left padding. */
+}
+
+.folder-tree ul { /* Styles nested unordered lists (subfolders). */
+    list-style-type: none; /* Removes bullets for subfolders too. */
+    padding-left: 20px;    /* Indents subfolders to create hierarchy. */
+    border-left: 1px dashed var(--border-color); /* Adds a visual line connecting subfolders. */
+    margin-left: 10px;     /* Space for the connecting line and icon alignment. */
+    /* display: none; Initially hide subfolders; JS will show/hide them. Commented out for JS control. */
+    max-height: 1000px;    /* Large max-height for smooth open animation. */
+    overflow: hidden;      /* Hides content that exceeds max-height. */
+    transition: max-height 0.4s ease-in-out; /* Smooth animation for expand/collapse. */
+}
+
+/* This class would be added by JavaScript to collapse a folder's sub-list */
+.folder-tree ul.collapsed { 
+    max-height: 0; /* Animates to height 0 to hide. */
+}
+
+
+.folder-item { /* Styles individual list items (folders) in the tree. */
+    margin-bottom: 0.5rem; /* Space below each folder item. */
+    position: relative;    /* For positioning action icons absolutely within it. */
+}
+
+.folder-name { /* Styles the clickable span containing the folder name and icon. */
+    display: flex;        /* Aligns icon and text. */
+    align-items: center;  /* Vertically centers icon and text. */
+    padding: 0.6rem 0.8rem; /* Padding around the folder name. */
+    cursor: pointer;      /* Pointer cursor to indicate it's clickable. */
+    border-radius: 4px;   /* Slightly rounded corners. */
+    transition: background-color var(--transition-speed), color var(--transition-speed); /* Smooth transitions for hover/active states. */
+    color: var(--primary-color); /* Default text color for folder names. */
+}
+
+.folder-name i { /* Styles icons within folder names (e.g., folder icon). */
+    margin-right: 10px;             /* Space between icon and folder text. */
+    color: var(--secondary-color);  /* Icon color. */
+    transition: transform var(--transition-speed) ease; /* Smooth transition for icon transformations (e.g., rotate). */
+}
+
+.folder-item.active > .folder-name { /* Styles for the currently active/selected folder. */
+    background-color: var(--active-item-bg); /* Distinct background for active folder. */
+    color: var(--text-color-light);          /* Light text color on active background. */
+    font-weight: 500;                        /* Slightly bolder text for active folder. */
+}
+.folder-item.active > .folder-name i { /* Styles icons in active folder names. */
+    color: var(--text-color-light); /* Ensures icon color matches text on active state. */
+}
+
+.folder-item:not(.active) > .folder-name:hover { /* Styles for non-active folder names on hover. */
+    background-color: var(--light-bg); /* Light background on hover for non-active items. */
+}
+
+.folder-actions { /* Styles the container for folder action icons (e.g., delete). */
+    position: absolute;        /* Positions icons relative to the .folder-item. */
+    right: 5px;                /* Positions icons to the right. */
+    top: 50%;                  /* Positions icons vertically centered. */
+    transform: translateY(-50%);/* Fine-tunes vertical centering. */
+    opacity: 0;                /* Hidden by default, shown on hover. */
+    transition: opacity var(--transition-speed) ease; /* Smooth fade-in/out. */
+    display: flex;             /* Aligns multiple action icons. */
+    gap: 8px;                  /* Space between action icons. */
+}
+
+.folder-item:hover .folder-actions { /* Shows folder action icons when hovering over the folder item. */
+    opacity: 1;
+}
+
+.folder-actions i { /* Styles individual action icons within .folder-actions. */
+    cursor: pointer;         /* Pointer cursor. */
+    color: var(--accent-color); /* Uses accent color (orange) for delete/actions. */
+    padding: 5px;            /* Padding around the icon for easier clicking. */
+    border-radius: 3px;      /* Slight rounding. */
+    background-color: rgba(255,255,255,0.8); /* Semi-transparent white background to make icon stand out. */
+}
+.folder-actions i:hover { /* Hover style for folder action icons. */
+    color: #c0392b; /* Darker red on hover for delete actions. */
+}
+
+/* --- Content Area (Files) --- */
+.content-area {
+    flex-grow: 1;                /* Allows this area to take up remaining horizontal space in the flex container. */
+    background-color: #fff;      /* White background. */
+    padding: 1.5rem;             /* Padding inside the content area. */
+    border-radius: 8px;          /* Rounded corners. */
+    box-shadow: var(--shadow);   /* Applies predefined shadow. */
+    overflow-y: auto;            /* Adds scrollbar if content overflows. */
+}
+
+.current-path-bar { /* Styles the bar displaying the current folder path. */
+    background-color: var(--light-bg); /* Light background. */
+    padding: 0.75rem 1rem;        /* Padding. */
+    margin-bottom: 1rem;          /* Space below the path bar. */
+    border-radius: 4px;           /* Rounded corners. */
+    font-size: 0.9rem;            /* Smaller font size for path. */
+    color: var(--primary-color);  /* Text color. */
+    border: 1px solid var(--border-color); /* Subtle border. */
+}
+#currentPath, #currentFolderName { /* Styles the dynamic parts of the path/folder name display. */
+    font-weight: 500;             /* Makes path segments bold. */
+    color: var(--secondary-color);/* Uses secondary color for emphasis. */
+}
+
+.content-area h2 { /* Styles H2 headings in the content area. */
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+.content-area h2 i { /* Styles icons within content area H2. */
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+
+.file-actions-bar { /* Styles the bar containing "Add File" button and search input. */
+    display: flex;        /* Enables flexbox for alignment. */
+    gap: 1rem;            /* Space between items (button and search input). */
+    margin-bottom: 1.5rem;/* Space below this bar. */
+    align-items: center;  /* Vertically aligns items. */
+}
+
+.file-actions-bar .action-btn { /* Styles action buttons within this bar specifically. */
+    width: auto; /* Button width fits its content, not full width. */
+}
+
+#searchFile { /* Styles the file search input field. */
+    padding: 0.75rem;               /* Padding inside the input. */
+    border: 1px solid var(--border-color); /* Border. */
+    border-radius: 5px;             /* Rounded corners. */
+    flex-grow: 1;                   /* Allows search input to take available space. */
+    font-size: 0.95rem;             /* Font size. */
+}
+#searchFile:focus { /* Styles for when the search input is focused. */
+    outline: none;                  /* Removes default browser outline. */
+    border-color: var(--secondary-color); /* Changes border color on focus. */
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* Adds a glow effect on focus. */
+}
+
+.file-list { /* Styles the container for the list of files (grid layout). */
+    display: grid; /* Enables CSS Grid layout. */
+    /* Creates a responsive grid: columns are at least 200px wide, filling available space. */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;     /* Space between grid items (files). */
+}
+
+.file-item { /* Styles individual file items in the grid. */
+    background-color: var(--light-bg); /* Light background for each file card. */
+    padding: 1rem;                /* Padding inside the file card. */
+    border-radius: 6px;           /* Rounded corners. */
+    border: 1px solid var(--border-color); /* Border. */
+    display: flex;                /* Flexbox for aligning content within the card. */
+    flex-direction: column;       /* Stacks content vertically (icon, name, actions). */
+    align-items: center;          /* Horizontally centers content. */
+    text-align: center;           /* Centers text. */
+    position: relative;           /* For positioning action icons absolutely. */
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease; /* Smooth transitions for hover. */
+    cursor: default;              /* Default cursor for the item itself; actions will have pointer. */
+}
+
+.file-item:hover { /* Hover effect for file items. */
+    transform: translateY(-5px); /* Lifts the card slightly. */
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1); /* Enhances shadow on hover. */
+}
+
+.file-icon { /* Styles the file type icon (e.g., PDF, image). */
+    font-size: 3rem;              /* Large icon size. */
+    color: var(--secondary-color);/* Icon color. */
+    margin-bottom: 0.75rem;       /* Space below the icon. */
+}
+/* Example for specific file type icon styling (can be extended): */
+/* .fa-file-pdf { color: red; } */
+
+.file-name { /* Styles the file name text. */
+    font-weight: 500;           /* Medium font weight. */
+    color: var(--primary-color);/* Text color. */
+    word-break: break-all;      /* Prevents long file names from breaking the layout by allowing them to wrap. */
+    margin-bottom: 0.5rem;      /* Space below the file name. */
+}
+
+.file-item-actions { /* Styles the container for file action icons (rename, delete). */
+    opacity: 0;                 /* Hidden by default. */
+    transition: opacity var(--transition-speed) ease; /* Smooth fade-in/out. */
+    display: flex;              /* Aligns icons horizontally. */
+    gap: 10px;                  /* Space between icons. */
+    margin-top: 0.5rem;         /* Space above the action icons. */
+    position: absolute;         /* Positioned relative to .file-item. */
+    bottom: 10px;               /* Positions at the bottom of the card. */
+    left: 50%;                  /* Centers horizontally. */
+    transform: translateX(-50%);/* Fine-tunes horizontal centering. */
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background for better visibility. */
+    padding: 5px 10px;          /* Padding within the actions bar. */
+    border-radius: 20px;        /* Rounded bar. */
+}
+
+.file-item:hover .file-item-actions { /* Shows file action icons on hover over the file item. */
+    opacity: 1;
+}
+
+.file-item-actions i { /* Styles individual action icons for files. */
+    cursor: pointer;        /* Pointer cursor. */
+    font-size: 1rem;        /* Icon size. */
+    color: var(--primary-color); /* Icon color. */
+    transition: color var(--transition-speed) ease; /* Smooth color transition on hover. */
+}
+
+.file-item-actions i.rename-file:hover { /* Hover color for rename icon. */
+    color: var(--secondary-color);
+}
+.file-item-actions i.delete-file:hover { /* Hover color for delete icon. */
+    color: var(--accent-color);
+}
+
+.visualization-area { /* Styles the area for folder structure visualization. */
+    margin-top: 2rem;             /* Space above this area. */
+    padding: 1.5rem;              /* Padding inside. */
+    background-color: var(--light-bg); /* Light background. */
+    border-radius: 8px;           /* Rounded corners. */
+    border: 1px dashed var(--secondary-color); /* Dashed border to indicate it's a special/demo area. */
+}
+.visualization-area h3 { /* Styles heading for visualization area. */
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+.visualization-area h3 i { /* Styles icon within the visualization heading. */
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+
+/* --- Modals --- */
+.modal { /* Styles for modal dialogs (pop-ups). */
+    display: none;                /* Hidden by default; shown by JavaScript. */
+    position: fixed;              /* Stays in place during scroll. Covers the whole screen. */
+    z-index: 1001;                /* Ensures modals are above other content (except maybe other modals). */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;               /* Adds scroll if modal content is too long. */
+    background-color: rgba(0,0,0,0.6); /* Semi-transparent black background (overlay). */
+    animation: fadeIn 0.3s ease-out; /* Fade-in animation for the overlay. */
+}
+
+@keyframes fadeIn { /* Defines the fadeIn animation. */
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content { /* Styles the actual content box within the modal. */
+    background-color: #fff;    /* White background for the modal box. */
+    margin: 15% auto;          /* Centers the modal vertically (15% from top) and horizontally (auto). */
+    padding: 25px 30px;        /* Padding inside the modal box. */
+    border: 1px solid var(--border-color); /* Border. */
+    width: 80%;                /* Width of the modal box, responsive. */
+    max-width: 500px;          /* Maximum width to prevent it from being too wide on large screens. */
+    border-radius: 8px;        /* Rounded corners. */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Shadow for a "pop-out" effect. */
+    position: relative;        /* Needed for positioning elements like the close button. */
+    animation: slideIn 0.3s ease-out; /* Slide-in animation for the modal content. */
+}
+
+@keyframes slideIn { /* Defines the slideIn animation. */
+    from { transform: translateY(-50px); opacity: 0; } /* Starts off-screen (top) and transparent. */
+    to { transform: translateY(0); opacity: 1; }       /* Slides in to position and fades in. */
+}
+
+.close-btn { /* Styles the 'X' close button in modals. */
+    color: #aaa;               /* Light grey color for the 'X'. */
+    float: right;              /* Positions the button to the top-right. */
+    font-size: 28px;           /* Size of the 'X'. */
+    font-weight: bold;         /* Makes it bold. */
+    transition: color var(--transition-speed) ease; /* Smooth color transition on hover. */
+}
+
+.close-btn:hover,
+.close-btn:focus { /* Styles for close button on hover or focus. */
+    color: var(--primary-color); /* Darker color on hover/focus. */
+    text-decoration: none;     /* Removes underline. */
+    cursor: pointer;           /* Pointer cursor. */
+}
+
+.modal h3 { /* Styles headings within modals. */
+    margin-bottom: 1.5rem;     /* Space below the modal title. */
+    color: var(--primary-color);/* Text color. */
+    text-align: center;        /* Centers the title. */
+}
+
+.modal input[type="text"] { /* Styles text input fields within modals. */
+    width: calc(100% - 20px);  /* Full width minus some padding. */
+    padding: 12px;             /* Padding inside input fields. */
+    margin-bottom: 1.5rem;     /* Space below input fields. */
+    border: 1px solid var(--border-color); /* Border. */
+    border-radius: 4px;        /* Rounded corners. */
+    font-size: 1rem;           /* Font size. */
+}
+.modal input[type="text"]:focus { /* Styles for focused input fields in modals. */
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* Focus glow. */
+}
+
+.modal .action-btn { /* Styles action buttons specifically within modals. */
+    display: block;   /* Makes button a block element. */
+    width: 100%;      /* Button takes full width of modal content area. */
+    margin-top: 0.5rem;/* Small space above the button. */
+}
+
+
+/* --- Footer --- */
+footer {
+    text-align: center;            /* Centers text in the footer. */
+    padding: 1.5rem;               /* Padding. */
+    background-color: var(--primary-color); /* Dark background for footer. */
+    color: var(--text-color-light);/* Light text color. */
+    font-size: 0.9rem;             /* Smaller font size. */
+    margin-top: auto;              /* Pushes footer to the bottom of the page if content is short (works with body display:flex, flex-direction:column). */
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) { /* Styles applied when screen width is 768px or less (tablets/mobiles). */
+    .container { /* On smaller screens, stack sidebar and content area vertically. */
+        flex-direction: column;
+        margin: 0.5rem; /* Reduced margin. */
+        gap: 0.5rem;    /* Reduced gap. */
+    }
+
+    .sidebar {
+        width: 100%;          /* Sidebar takes full width. */
+        margin-bottom: 1rem;  /* Space below sidebar before content area. */
+        max-height: 300px;    /* Limits sidebar height on mobile to prevent excessive scrolling. */
+    }
+
+    .content-area {
+        width: 100%; /* Content area also takes full width. */
+    }
+
+    .file-list { /* Adjust file grid for smaller screens. */
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Smaller minimum file item width. */
+    }
+
+    .modal-content { /* Adjust modal width for smaller screens. */
+        width: 90%;       /* Modal takes up more screen width. */
+        margin: 20% auto; /* Adjust vertical centering margin. */
+    }
+
+    header .logo { /* Reduce logo size on smaller screens. */
+        font-size: 1.5rem;
+    }
+    header h1 { /* Reduce main title size. */
+        font-size: 1.2rem;
+    }
+}
