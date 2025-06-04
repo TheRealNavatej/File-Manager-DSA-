@@ -1,0 +1,205 @@
+<!DOCTYPE html> <html lang="en"> <head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Archive - File Organizer</title> <link rel="stylesheet" href="MAIN.CSS"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body> <header> <div class="logo"> <i class="fas fa-archive"></i> Digital Archive </div>
+        <h1>File System Organizer</h1> </header>
+
+    <main class="container"> <aside class="sidebar"> <h2><i class="fas fa-folder-tree"></i> Folders</h2> <button class="action-btn" id="createFolderBtn"><i class="fas fa-folder-plus"></i> New Folder</button>
+            
+            <ul id="folderTree" class="folder-tree">
+                <li class="folder-item active" data-path="Root">
+                    <span class="folder-name"><i class="fas fa-folder-open"></i> Root</span> <div class="folder-actions"> <i class="fas fa-trash-alt delete-folder" title="Delete Folder"></i> </div>
+                    <ul> <li class="folder-item" data-path="Root/Documents">
+                            <span class="folder-name"><i class="fas fa-folder"></i> Documents</span> <div class="folder-actions">
+                                <i class="fas fa-trash-alt delete-folder" title="Delete Folder"></i>
+                            </div>
+                            <ul> <li class="folder-item" data-path="Root/Documents/Reports">
+                                    <span class="folder-name"><i class="fas fa-folder"></i> Reports</span>
+                                     <div class="folder-actions">
+                                        <i class="fas fa-trash-alt delete-folder" title="Delete Folder"></i>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="folder-item" data-path="Root/Images">
+                            <span class="folder-name"><i class="fas fa-folder"></i> Images</span>
+                            <div class="folder-actions">
+                                <i class="fas fa-trash-alt delete-folder" title="Delete Folder"></i>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                </ul>
+        </aside>
+
+        <section class="content-area"> <div class="current-path-bar"> Current Path: <span id="currentPath">Root</span> </div>
+            <h2><i class="fas fa-file-alt"></i> Files in <span id="currentFolderName">Root</span></h2> <div class="file-actions-bar"> <button class="action-btn" id="addFileBtn"><i class="fas fa-file-medical"></i> Add File</button> <input type="text" id="searchFile" placeholder="Search by filename...">
+            </div>
+
+            <div id="fileList" class="file-list">
+                <div class="file-item" data-filename="annual_report.pdf"> <i class="fas fa-file-pdf file-icon"></i> <span class="file-name">annual_report.pdf</span> <div class="file-item-actions"> <i class="fas fa-edit rename-file" title="Rename File"></i> <i class="fas fa-trash-alt delete-file" title="Delete File"></i> </div>
+                </div>
+                <div class="file-item" data-filename="logo_final.png">
+                    <i class="fas fa-file-image file-icon"></i>
+                    <span class="file-name">logo_final.png</span>
+                    <div class="file-item-actions">
+                        <i class="fas fa-edit rename-file" title="Rename File"></i>
+                        <i class="fas fa-trash-alt delete-file" title="Delete File"></i>
+                    </div>
+                </div>
+                <div class="file-item" data-filename="notes.txt">
+                    <i class="fas fa-file-alt file-icon"></i> <span class="file-name">notes.txt</span>
+                    <div class="file-item-actions">
+                        <i class="fas fa-edit rename-file" title="Rename File"></i>
+                        <i class="fas fa-trash-alt delete-file" title="Delete File"></i>
+                    </div>
+                </div>
+                 </div>
+
+            <div id="visualizationArea" class="visualization-area">
+                <h3><i class="fas fa-sitemap"></i> Folder Structure Visualization</h3>
+                <p>(Tree traversal demo will appear here - e.g., a graphical representation)</p>
+                </div>
+        </section>
+    </main>
+
+    <footer> <p>&copy; 2025 Digital Archive. All rights reserved.</p> </footer>
+
+    <div id="folderModal" class="modal"> <div class="modal-content"> <span class="close-btn" onclick="closeModal('folderModal')">&times;</span> <h3>Create New Folder</h3> <input type="text" id="newFolderName" placeholder="Enter folder name"> <button class="action-btn" id="confirmCreateFolder">Create</button> </div>
+    </div>
+
+    <div id="fileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('fileModal')">&times;</span>
+            <h3 id="fileModalTitle">Add New File</h3> <input type="text" id="newFileName" placeholder="Enter file name (e.g., document.txt)">
+            <button class="action-btn" id="confirmAddFile">Add File</button>
+        </div>
+    </div>
+
+    <div id="renameModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('renameModal')">&times;</span>
+            <h3>Rename File</h3>
+            <input type="text" id="renameFileNameInput" placeholder="Enter new file name">
+            <button class="action-btn" id="confirmRenameFile">Rename</button>
+        </div>
+    </div>
+
+    <script>
+        // Basic JavaScript for modal visibility.
+        function openModal(modalId) {
+            // Gets the HTML element with the given 'modalId' and sets its display style to 'block' (making it visible).
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            // Gets the HTML element with the given 'modalId' and sets its display style to 'none' (hiding it).
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Example event listeners to trigger modals.
+        // These show how JavaScript would connect buttons to actions.
+
+        // When the "New Folder" button is clicked, open the 'folderModal'.
+        document.getElementById('createFolderBtn').addEventListener('click', () => openModal('folderModal'));
+        
+        // When the "Add File" button is clicked, set the title and open the 'fileModal'.
+        document.getElementById('addFileBtn').addEventListener('click', () => {
+            document.getElementById('fileModalTitle').textContent = 'Add New File'; // Set modal title.
+            openModal('fileModal');
+        });
+
+        // Add event listeners to all "rename file" icons.
+        document.querySelectorAll('.rename-file').forEach(btn => {
+            btn.addEventListener('click', (e) => { // 'e' is the event object.
+                // 'e.target' is the icon that was clicked.
+                // '.closest('.file-item')' finds the nearest parent element with the class 'file-item'.
+                // '.dataset.filename' gets the value of the 'data-filename' attribute.
+                const fileName = e.target.closest('.file-item').dataset.filename;
+                // Pre-fill the input field in the rename modal with the current file name.
+                document.getElementById('renameFileNameInput').value = fileName;
+                openModal('renameModal'); // Open the rename modal.
+            });
+        });
+
+        // Basic folder selection and expand/collapse visual demo.
+        // This is a simplified version; a real application would have more robust state management.
+        document.querySelectorAll('.folder-name').forEach(folderNameSpan => {
+            folderNameSpan.addEventListener('click', (e) => {
+                const clickedFolderItem = e.target.closest('.folder-item');
+
+                // Remove 'active' class from any currently active folder.
+                document.querySelectorAll('.folder-item.active').forEach(activeFolder => {
+                    activeFolder.classList.remove('active');
+                    // Optionally, visually close previously active folders if they are not ancestors
+                    const oldIcon = activeFolder.querySelector('.folder-name > i');
+                    if (oldIcon && oldIcon.classList.contains('fa-folder-open')) {
+                        oldIcon.classList.remove('fa-folder-open');
+                        oldIcon.classList.add('fa-folder');
+                    }
+                });
+
+                // Add 'active' class to the clicked folder.
+                clickedFolderItem.classList.add('active');
+
+                // Update current path display.
+                const path = clickedFolderItem.dataset.path;
+                document.getElementById('currentPath').textContent = path;
+                document.getElementById('currentFolderName').textContent = path.split('/').pop(); // Get the last part of the path as folder name.
+
+                // Toggle expand/collapse visual for the clicked folder's icon and sub-list.
+                const icon = clickedFolderItem.querySelector('.folder-name > i');
+                const subList = clickedFolderItem.querySelector('ul'); // Direct child 'ul' for subfolders.
+
+                if (icon) { // Ensure an icon exists.
+                    if (subList) { // If there's a subfolder list.
+                        if (subList.style.display === 'none' || subList.style.display === '') {
+                            // If hidden or not explicitly set, show it and open icon.
+                            subList.style.display = 'block';
+                            icon.classList.remove('fa-folder', 'fa-folder-closed');
+                            icon.classList.add('fa-folder-open');
+                        } else {
+                            // If visible, hide it and close icon.
+                            subList.style.display = 'none';
+                            icon.classList.remove('fa-folder-open');
+                            icon.classList.add('fa-folder'); // Or 'fa-folder-closed' if you prefer.
+                        }
+                    } else {
+                        // If no subList, but it's a folder, ensure it looks 'open' when selected.
+                        icon.classList.remove('fa-folder', 'fa-folder-closed');
+                        icon.classList.add('fa-folder-open');
+                    }
+                }
+                // Placeholder for actually loading folder contents:
+                // loadFilesForFolder(path);
+            });
+        });
+
+        // Initialize: Hide all subfolders (ul inside ul) except for those under an 'active' path.
+        document.querySelectorAll('.folder-tree ul').forEach(ul => {
+            // If the ul is a direct child of a folder-item that is NOT active, hide it.
+            // And if it's not the main 'folderTree' ul itself.
+            const parentLi = ul.parentElement;
+            if (parentLi.classList.contains('folder-item') && !parentLi.classList.contains('active')) {
+                 ul.style.display = 'none';
+            }
+            // Also ensure icons of non-active folders with children are closed.
+            if (parentLi.classList.contains('folder-item') && !parentLi.classList.contains('active') && parentLi.querySelector('ul')) {
+                const icon = parentLi.querySelector('.folder-name > i');
+                if (icon) {
+                    icon.classList.remove('fa-folder-open');
+                    icon.classList.add('fa-folder');
+                }
+            }
+        });
+        // Ensure initially active folder's direct subfolders are shown if it has an open icon.
+        document.querySelectorAll('.folder-item.active > ul').forEach(ul => {
+            ul.style.display = 'block';
+        });
+
+
+    </script>
+</body>
+</html>
