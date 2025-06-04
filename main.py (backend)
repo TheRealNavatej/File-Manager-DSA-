@@ -1,0 +1,224 @@
+from flask import Flask, request, jsonify, session
+import os
+import hashlib
+import json
+from flask_cors import CORS
+
+# ---- Flask Setup ---- #
+app = Flask(__name__)
+app.secret_key = 'super-secret-key'
+CORS(app)
+
+# ---- Constants ---- #
+ROOT_DIR = "organizer_root"
+USER_DB = "users.json"
+COLLISION_THRESHOLD = 3
+
+# ---- Ensure root dir exists ---- #
+os.makedirs(ROOT_DIR, exist_ok=True)
+
+# ---- Helper Functions ---- #
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def load_users():
+    if os.path.exists(USER_DB):
+        with open(USER_DB, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_users(users):
+    with open(USER_DB, "w") as f:
+        json.dump(users, f)
+
+def get_user_root(username):
+    path = os.path.join(ROOT_DIR, username)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+# ---- Folder Tree Node ---- #
+class FolderNode:
+    def __init__(self, name, path):
+        self.name = name
+        self.path = path
+        self.subfolders = {}
+        self.files = []
+        self.parent = None
+
+    def add_subfolder(self, folder_name):
+        if folder_name not in self.subfolders:
+            new_path = os.path.join(self.path, folder_name)
+            os.makedirs(new_path, exist_ok=True)
+            node = FolderNode(folder_name, new_path)
+            node.parent = self
+            self.subfolders[folder_name] = node
+        return self.subfolders[folder_name]
+
+    def delete_subfolder(self, folder_name):
+        if folder_name in self.subfolders:
+            self.subfolders[folder_name].delete_all()
+            del self.subfolders[folder_name]
+
+    def delete_all(self):
+        for sub in self.subfolders.values():
+            sub.delete_all()
+        for file in self.files:
+            try:
+                os.remove(os.path.join(self.path, file))
+            except FileNotFoundError:
+                pass
+        self.subfolders.clear()
+        self.files.clear()
+        try:
+            os.rmdir(self.path)
+        except:
+            pass
+
+# ---- Hash Table for File Indexing ---- #
+class HashTable:
+    def __init__(self, size=10):
+        self.size = size
+        self.table = [[] for _ in range(size)]
+
+    def _hash(self, key):
+        return hash(key) % self.size
+
+    def _rehash(self):
+        items = [item for bucket in self.table for item in bucket]
+        self.size *= 2
+        self.table = [[] for _ in range(self.size)]
+        for key, value in items:
+            self.add(key, value)
+
+    def add(self, key, value):
+        idx = self._hash(key)
+        bucket = self.table[idx]
+        for i, (k, _) in enumerate(bucket):
+            if k == key:
+                bucket[i] = (key, value)
+                return
+        bucket.append((key, value))
+        if len(bucket) > COLLISION_THRESHOLD:
+            self._rehash()
+
+    def delete(self, key):
+        idx = self._hash(key)
+        self.table[idx] = [(k, v) for k, v in self.table[idx] if k != key]
+
+    def get(self, key):
+        idx = self._hash(key)
+        for k, v in self.table[idx]:
+            if k == key:
+                return v
+        return None
+
+file_index = HashTable()
+
+# ---- Utility ---- #
+def auth_required():
+    if 'username' not in session:
+        return False, jsonify({"error": "Unauthorized"}), 401
+    return True, None, None
+
+# ---- Auth Routes ---- #
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.json
+    username, password = data.get("username"), data.get("password")
+    users = load_users()
+
+    if username in users:
+        return jsonify({"error": "Username exists"}), 409
+
+    users[username] = hash_password(password)
+    save_users(users)
+    get_user_root(username)
+    return jsonify({"message": "User registered"}), 201
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    username, password = data.get("username"), data.get("password")
+    users = load_users()
+
+    if users.get(username) != hash_password(password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    session['username'] = username
+    return jsonify({"message": "Login successful"})
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.pop('username', None)
+    return jsonify({"message": "Logged out"})
+
+# ---- File and Folder API ---- #
+@app.route("/create", methods=["POST"])
+def create():
+    authorized, response, code = auth_required()
+    if not authorized:
+        return response, code
+
+    data = request.json
+    item_type, name = data.get("type"), data.get("name")
+    user_root = get_user_root(session['username'])
+    path = os.path.join(user_root, name)
+
+    if os.path.exists(path):
+        return jsonify({"error": f"{item_type} already exists"}), 409
+
+    handlers = {
+        "folder": lambda: os.makedirs(path, exist_ok=True),
+        "file": lambda: (open(path, 'w').close(), file_index.add(name, path))
+    }
+
+    if item_type in handlers:
+        handlers[item_type]()
+        return jsonify({"message": f"{item_type} created"})
+    return jsonify({"error": "Invalid type"}), 400
+
+@app.route("/delete", methods=["POST"])
+def delete():
+    authorized, response, code = auth_required()
+    if not authorized:
+        return response, code
+
+    name = request.json.get("name")
+    path = os.path.join(get_user_root(session['username']), name)
+
+    try:
+        if os.path.isdir(path):
+            os.rmdir(path)
+        elif os.path.isfile(path):
+            os.remove(path)
+            file_index.delete(name)
+        else:
+            return jsonify({"error": "Item not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Deleted"})
+
+@app.route("/find", methods=["GET"])
+def find():
+    authorized, response, code = auth_required()
+    if not authorized:
+        return response, code
+
+    name = request.args.get("name")
+    location = file_index.get(name)
+    return jsonify({"location": location or "Not found"})
+
+@app.route("/list", methods=["GET"])
+def list_items():
+    authorized, response, code = auth_required()
+    if not authorized:
+        return response, code
+
+    user_root = get_user_root(session['username'])
+    items = os.listdir(user_root)
+    return jsonify({"items": items})
+
+# ---- Start App ---- #
+if __name__ == '__main__':
+    app.run(debug=True)
